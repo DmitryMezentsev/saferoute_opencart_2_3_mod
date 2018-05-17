@@ -5,6 +5,10 @@
   "main": "",
   "scripts": {},
   "author": "Dmitry Mezentsev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DmitryMezentsev/ddelivery_opencart_2_3_mod.git"
+  },
   "license": "ISC",
   "devDependencies": {
     "gulp": "^3.9.1",
