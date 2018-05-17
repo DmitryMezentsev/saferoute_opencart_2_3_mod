@@ -1,0 +1,16 @@
+{
+  "name": "ddelivery_opencart_2_3_mod",
+  "version": "2.0.0",
+  "description": "DDelivery Opencart 2.3 Module",
+  "main": "",
+  "scripts": {},
+  "author": "Dmitry Mezentsev",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.4.0",
+    "gulp-watch": "^5.0.0",
+    "gulp-zip": "^4.1.0",
+    "run-sequence": "^2.2.1"
+  }
+}
