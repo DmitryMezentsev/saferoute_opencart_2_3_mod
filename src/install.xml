@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+	<name>Модуль корзинного виджета DDelivery</name>
+	<id>DDeliveryCartWidgetModule</id>
+	<code>DDeliveryCartWidgetModule</code>
+	<version>2.0</version>
+	<author>Dmitry Mezentsev</author>
+	<link>https://ddelivery.ru</link>
+	<file path="catalog/controller/common/header.php">
+		<operation>
+			<search><![CDATA[
+					$data['scripts'] = $this->document->getScripts();
+				]]></search>
+			<add position="before"><![CDATA[
+				$this->document->addScript('https://ddelivery.ru/front/widget-cart/public/api.js');
+				$this->document->addScript('catalog/view/javascript/dd-widget-init.js');
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/controller/checkout/success.php">
+		<operation>
+			<search><![CDATA[
+			if (isset($this->session->data['order_id'])) {
+			]]></search>
+			<add position="after"><![CDATA[
+				if ($this->session->data['shipping_method']['code'] === "ddelivery.ddelivery") {
+					$this->load->model('shipping/ddelivery');
+					$this->model_shipping_ddelivery->onOrderCheckoutSuccess($this->session->data['order_id']);
+				}
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/model/checkout/order.php">
+		<operation>
+			<search><![CDATA[
+			// Update the DB with the new statuses
+			]]></search>
+			<add position="after"><![CDATA[
+				$this->load->model('shipping/ddelivery');
+				if (intval($order_status_id)) $this->model_shipping_ddelivery->onOrderStatusUpdate($order_id, $order_status_id);
+			]]></add>
+		</operation>
+	</file>
+</modification>
