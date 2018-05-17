@@ -42,11 +42,19 @@ $.gulp.task('_buildModule', () =>
 );
 
 // Создание архива для выгрузки на сайт
-$.gulp.task('_createArchive', () =>
-    $.gulp.src([path.join(buildDir, moduleFileName), docFiles, path.join(`!${docDir}`, '~*')])
+$.gulp.task('_createArchive', () => {
+    let src = [
+        path.join(buildDir, moduleFileName),
+        docFiles,
+        // exclude
+        path.join(`!${docDir}`, '~*'),
+        path.join(`!${docDir}`, '*.tmp'),
+    ];
+
+    return $.gulp.src(src)
         .pipe($.zip(archiveFileName))
         .pipe($.gulp.dest(buildDir))
-);
+});
 
 // Мониторинг изменений и пересборка
 $.gulp.task('_watch', () =>

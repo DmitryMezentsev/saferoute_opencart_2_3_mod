@@ -34,9 +34,13 @@
         // не отображается, функцию выполнять не нужно
         if (!$ddeliveryLabel.length || $ddeliveryLabel.is(':hidden')) return;
 
-        // Удаление из Cookies старых данных
-        cookie.remove('DDWidgetData');
-        cookie.remove('DDOrderData');
+        // Удаление из Cookies старых данных при первой загрузке скрипта
+        // (при перезапуске виджета очищать Cookies нельзя, т.к. Simple перезагружает блоки на стадии
+        // оформления заказа и очистка Cookies помешает сохранить в базе CMS данные виджета и DDelivery ID заказа)
+        if (!widget) {
+            cookie.remove('DDWidgetData');
+            cookie.remove('DDOrderData');
+        }
 
         // Элементы поля валидации widget_validation
         var $validationLabel = $('.row-shipping_widget_validation label'),
