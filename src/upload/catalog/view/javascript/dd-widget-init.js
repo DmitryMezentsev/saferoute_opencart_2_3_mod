@@ -79,6 +79,7 @@
                 widget = new DDeliveryWidgetCart(WIDGET_DOM_ID, {
                     lang: lang,
                     apiScript: baseHref + 'index.php?route=module/ddelivery/widget_api',
+                    mod: 'opencart_2_3',
 
                     products: cart.products,
                     weight: cart.weight
