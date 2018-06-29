@@ -281,7 +281,6 @@ class ModelShippingDdelivery extends Model
         {
             $cost = 0;
 
-            // Не знаю, нужно ли это. На всякий случай
             if (isset($_COOKIE['DDWidgetData']))
             {
                 $dd_widget_data = json_decode(urldecode($_COOKIE['DDWidgetData']));
