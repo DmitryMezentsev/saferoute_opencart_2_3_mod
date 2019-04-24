@@ -13,7 +13,7 @@ const docDir    = './doc';
 const moduleFiles = path.join(moduleDir, '**/*.*');
 const docFiles    = path.join(docDir, '*.*');
 
-const moduleFileName  = 'ddelivery.ocmod.zip';
+const moduleFileName  = 'saferoute.ocmod.zip';
 const archiveFileName = 'opencart_2.3_mod.zip';
 
 

@@ -1,7 +1,7 @@
 (function($) {
     var cookie = {
         set: function (name, value, stringifyObject) {
-            if (value && stringifyObject) value = JSON.stringify(value);
+            if (value && stringifyObject) value = encodeURIComponent(JSON.stringify(value));
 
             var date = new Date();
             date.setTime(date.getTime() + 24 * 60 * 60 * 1000);
@@ -21,25 +21,25 @@
     };
 
 
-    var WIDGET_DOM_ID = 'dd-widget';
+    var WIDGET_DOM_ID = 'sr-widget';
 
 
     var widget;
 
 
-    window.DDeliveryWidgetInit = function () {
-        var $ddeliveryLabel = $('label[for="ddelivery.ddelivery"]');
+    window.SafeRouteWidgetInit = function () {
+        var $safeRouteLabel = $('label[for="saferoute.saferoute"]');
 
         // Если место, где должен отображаться виджет, на странице не существует или в текущий момент
         // не отображается, функцию выполнять не нужно
-        if (!$ddeliveryLabel.length || $ddeliveryLabel.is(':hidden')) return;
+        if (!$safeRouteLabel.length || $safeRouteLabel.is(':hidden')) return;
 
         // Удаление из Cookies старых данных при первой загрузке скрипта
         // (при перезапуске виджета очищать Cookies нельзя, т.к. Simple перезагружает блоки на стадии
-        // оформления заказа и очистка Cookies помешает сохранить в базе CMS данные виджета и DDelivery ID заказа)
+        // оформления заказа и очистка Cookies помешает сохранить в базе CMS данные виджета и SafeRoute ID заказа)
         if (!widget) {
-            cookie.remove('DDWidgetData');
-            cookie.remove('DDOrderData');
+            cookie.remove('SRWidgetData');
+            cookie.remove('SROrderData');
         }
 
         // Элементы поля валидации widget_validation
@@ -56,7 +56,7 @@
         var baseHref = $(document).find('base[href]').attr('href') || '/';
 
         // Получение настроек сайта / модуля
-        $.get(baseHref + 'index.php?route=module/ddelivery/get_settings', function (settings) {
+        $.get(baseHref + 'index.php?route=module/saferoute/get_settings', function (settings) {
             var lang = 'ru';
             switch (settings.lang) {
                 case 'en':    lang = 'en'; break;
@@ -67,18 +67,18 @@
             if (widget) widget.destruct();
 
             // DOM-узел для монтирования виджета
-            $ddeliveryLabel.after('<div id="' + WIDGET_DOM_ID + '"></div>');
+            $safeRouteLabel.after('<div id="' + WIDGET_DOM_ID + '"></div>');
 
             // Получение данных корзины (список товаров, габариты)
-            $.get(baseHref + 'index.php?route=module/ddelivery/get_cart', function (cart) {
+            $.get(baseHref + 'index.php?route=module/saferoute/get_cart', function (cart) {
                 // Корзина пуста, виджет запустить нельзя
                 if (!cart.products || !cart.products.length)
                     return alert(messages[lang].cartIsEmpty);
 
-                // Инициализация виджета DDelivery
-                widget = new DDeliveryWidgetCart(WIDGET_DOM_ID, {
+                // Инициализация виджета SafeRoute
+                widget = new SafeRouteCartWidget(WIDGET_DOM_ID, {
                     lang: lang,
-                    apiScript: baseHref + 'index.php?route=module/ddelivery/widget_api',
+                    apiScript: baseHref + 'index.php?route=module/saferoute/widget_api',
                     mod: 'opencart_2_3',
 
                     products: cart.products,
@@ -88,17 +88,17 @@
                 // Изменение значений в виджете
                 widget.on('change', function (values) {
                     // Сохранение данных виджета в Cookies
-                    cookie.set('DDWidgetData', values, true);
+                    cookie.set('SRWidgetData', values, true);
                 });
 
-                // Заказ передан на сервер DDelivery
+                // Заказ передан на сервер SafeRoute
                 widget.on('afterSubmit', function (response) {
                     if (response.status === 'ok') {
                         // Чтобы пройти валидацию поля widget_validation
                         $validationInput.val(1);
 
                         // Сохранение данных заказа в Cookies
-                        cookie.set('DDOrderData', {
+                        cookie.set('SROrderData', {
                             id: response.id,
                             confirmed: response.confirmed
                         }, true);

@@ -1,10 +1,10 @@
 <?php
 
 
-require_once DIR_SYSTEM . 'library/ddelivery/DDeliveryWidgetApi.php';
+require_once DIR_SYSTEM . 'library/saferoute/SafeRouteWidgetApi.php';
 
 
-class ControllerModuleDdelivery extends Controller
+class ControllerModuleSaferoute extends Controller
 {
     /**
      * Отправляет в браузер данные в формате JSON
@@ -40,14 +40,14 @@ class ControllerModuleDdelivery extends Controller
     }
 
     /**
-     * Проверяет, совпадает ли переданный API-ключ c API-ключом, указанным в настройках модуля DDelivery
+     * Проверяет, совпадает ли переданный API-ключ c API-ключом, указанным в настройках модуля SafeRoute
      *
      * @param $key string API-ключ для проверки
      * @return boolean
      */
     private function checkApiKey($key)
     {
-        return ($key && $key === $this->config->get('ddelivery_api_key'));
+        return ($key && $key === $this->config->get('saferoute_api_key'));
     }
 
     /**
@@ -126,9 +126,9 @@ class ControllerModuleDdelivery extends Controller
      */
     public function widget_api()
     {
-        $widgetApi = new DDeliveryWidgetApi();
+        $widgetApi = new SafeRouteWidgetApi();
 
-        $widgetApi->setApiKey($this->config->get('ddelivery_api_key'));
+        $widgetApi->setApiKey($this->config->get('saferoute_api_key'));
 
         $widgetApi->setMethod($_SERVER['REQUEST_METHOD']);
         $widgetApi->setData(isset($_REQUEST['data']) ? $_REQUEST['data'] : []);
@@ -137,7 +137,7 @@ class ControllerModuleDdelivery extends Controller
     }
 
     /**
-     * API для взаимодействия с SDK DDelivery
+     * API для взаимодействия с SDK SafeRoute
      */
     public function api()
     {
@@ -149,8 +149,8 @@ class ControllerModuleDdelivery extends Controller
             // Список статусов заказа
             if (strpos($r, 'statuses.json'))
             {
-                $this->load->model('shipping/ddelivery');
-                $this->sendJSON($this->model_shipping_ddelivery->getOrderStatuses());
+                $this->load->model('shipping/saferoute');
+                $this->sendJSON($this->model_shipping_saferoute->getOrderStatuses());
             }
             // Список способов оплаты
             elseif (strpos($r, 'payment-methods.json'))
@@ -168,7 +168,7 @@ class ControllerModuleDdelivery extends Controller
 
                 $this->sendJSON($payment_methods);
             }
-            // Уведомления об изменениях статуса заказа в DDelivery
+            // Уведомления об изменениях статуса заказа в SafeRoute
             elseif (strpos($r, 'traffic-orders.json'))
             {
                 $this->load->model('checkout/order');
@@ -183,10 +183,10 @@ class ControllerModuleDdelivery extends Controller
                 if ($id && $status_cms)
                 {
                     // Сохранение трекинг-номера заказа
-                    $this->db->query("UPDATE " . DB_PREFIX . "order SET tracking='$track_number' WHERE ddelivery_id='$id'");
+                    $this->db->query("UPDATE " . DB_PREFIX . "order SET tracking='$track_number' WHERE saferoute_id='$id'");
 
                     // Получение ID заказа в CMS
-                    $order_id = $this->db->query("SELECT order_id FROM " . DB_PREFIX . "order WHERE ddelivery_id='$id'")->row['order_id'];
+                    $order_id = $this->db->query("SELECT order_id FROM " . DB_PREFIX . "order WHERE saferoute_id='$id'")->row['order_id'];
 
                     // Добавление нового статуса в историю статусов заказа
                     $this->model_checkout_order->addOrderHistory($order_id, $status_cms);

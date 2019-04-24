@@ -1,30 +1,26 @@
 <?php
 
-
-require DIR_SYSTEM . 'library/ddelivery/Browser.php';
-
-
-class ModelShippingDdelivery extends Model
+class ModelShippingSaferoute extends Model
 {
     /**
-     * Возвращает путь к API для обновления данных заказа в DDelivery
+     * Возвращает путь к API для обновления данных заказа в SafeRoute
      *
      * @return string
      */
-    private function getDDeliveryUpdateOrderAPI()
+    private function getSafeRouteUpdateOrderAPI()
     {
-        return 'https://ddelivery.ru/api/' . $this->config->get('ddelivery_api_key') . '/sdk/update-order.json';
+        return 'https://api.saferoute.ru/api/' . $this->config->get('saferoute_api_key') . '/sdk/update-order.json';
     }
 
     /**
-     * Отправляет запрос на обновление данных заказа в DDelivery SDK
+     * Отправляет запрос на обновление данных заказа в SafeRoute SDK
      *
      * @param $values array Параметры запроса
      * @return array
      */
-    private function sendDDeliveryUpdateOrderRequest($values)
+    private function sendSafeRouteUpdateOrderRequest($values)
     {
-        $curl = curl_init($this->getDDeliveryUpdateOrderAPI());
+        $curl = curl_init($this->getSafeRouteUpdateOrderAPI());
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
@@ -50,17 +46,17 @@ class ModelShippingDdelivery extends Model
     }
 
     /**
-     * Обновляет ddelivery_id заказа и устанавливает флаг, что заказ был перенесен в ЛК DDelivery
+     * Обновляет saferoute_id заказа и устанавливает флаг, что заказ был перенесен в ЛК SafeRoute
      *
      * @param $order_id int|string ID заказа в БД CMS
-     * @param $ddelivery_id int|string ID заказа DDelivery
+     * @param $saferoute_id int|string ID заказа SafeRoute
      */
-    private function setOrderDDeliveryCabinetID($order_id, $ddelivery_id)
+    private function setOrderSafeRouteCabinetID($order_id, $saferoute_id)
     {
-        if ($ddelivery_id)
+        if ($saferoute_id)
         {
-            $this->updateOrder($order_id, 'ddelivery_id', $ddelivery_id);
-            $this->updateOrder($order_id, 'in_ddelivery_cabinet', 1);
+            $this->updateOrder($order_id, 'saferoute_id', $saferoute_id);
+            $this->updateOrder($order_id, 'in_saferoute_cabinet', 1);
         }
     }
 
@@ -156,36 +152,29 @@ class ModelShippingDdelivery extends Model
     {
         $this->load->model('checkout/order');
 
-        if (!isset($_COOKIE['DDOrderData']) || !$order_id) return false;
+        if (!isset($_COOKIE['SROrderData']) || !$order_id) return false;
 
-        $dd_order_data = json_decode(urldecode($_COOKIE['DDOrderData']));
+        $sr_order_data = json_decode(urldecode($_COOKIE['SROrderData']));
 
-        // Сохраняем в заказе тот DDelivery ID, который был получен виджетом при создании заказа
-        $this->updateOrder($order_id, 'ddelivery_id', $dd_order_data->id);
+        // Сохраняем в заказе тот SafeRoute ID, который был получен виджетом при создании заказа
+        $this->updateOrder($order_id, 'saferoute_id', $sr_order_data->id);
 
-        if (isset($_COOKIE['DDWidgetData']))
+        if (isset($_COOKIE['SRWidgetData']))
         {
-            $browser = (new Browser())->getBrowser();
-
-            // Перекодирование в UTF-8 нужно для IE/Edge, без этого не работает
-            $dd_widget_data_string = ($browser === Browser::BROWSER_IE || $browser === Browser::BROWSER_POCKET_IE || $browser === Browser::BROWSER_EDGE)
-                ? mb_convert_encoding($_COOKIE['DDWidgetData'], 'utf-8', 'windows-1251')
-                : $_COOKIE['DDWidgetData'];
-
-            $dd_widget_data = json_decode(urldecode($dd_widget_data_string));
+            $sr_widget_data = json_decode(urldecode($_COOKIE['SRWidgetData']));
 
             // Сохраняем в заказе адрес...
-            $this->updateOrder($order_id, 'shipping_address_1', $this->getAddress($dd_widget_data));
+            $this->updateOrder($order_id, 'shipping_address_1', $this->getAddress($sr_widget_data));
             // ...город
-            if (isset($dd_widget_data->city->name))
-                $this->updateOrder($order_id, 'shipping_city', $dd_widget_data->city->name);
+            if (isset($sr_widget_data->city->name))
+                $this->updateOrder($order_id, 'shipping_city', $sr_widget_data->city->name);
             // ...индекс
-            if (isset($dd_widget_data->contacts->address->index))
-                $this->updateOrder($order_id, 'shipping_postcode', $dd_widget_data->contacts->address->index);
+            if (isset($sr_widget_data->contacts->address->index))
+                $this->updateOrder($order_id, 'shipping_postcode', $sr_widget_data->contacts->address->index);
             // ...ФИО
-            if (isset($dd_widget_data->contacts->fullName))
+            if (isset($sr_widget_data->contacts->fullName))
             {
-                $fullName = $this->splitFullName($dd_widget_data->contacts->fullName);
+                $fullName = $this->splitFullName($sr_widget_data->contacts->fullName);
 
                 $this->updateOrder($order_id, 'shipping_firstname', $fullName['firstName']);
                 $this->updateOrder($order_id, 'shipping_lastname', $fullName['lastName']);
@@ -203,16 +192,16 @@ class ModelShippingDdelivery extends Model
                 */
             }
             // ...и телефон клиента из виджета
-            if (isset($dd_widget_data->contacts->phone))
-                $this->updateOrder($order_id, 'telephone', $dd_widget_data->contacts->phone);
+            if (isset($sr_widget_data->contacts->phone))
+                $this->updateOrder($order_id, 'telephone', $sr_widget_data->contacts->phone);
         }
 
         // Получение заказа в CMS
         $order = $this->model_checkout_order->getOrder($order_id);
 
-        // Отправка запроса к API SDK DDelivery
-        $response = $this->sendDDeliveryUpdateOrderRequest([
-            'id'             => $dd_order_data->id,
+        // Отправка запроса к API SDK SafeRoute
+        $response = $this->sendSafeRouteUpdateOrderRequest([
+            'id'             => $sr_order_data->id,
             'status'         => $order['order_status_id'],
             'cms_id'         => $order_id,
             'payment_method' => $order['payment_code'],
@@ -221,7 +210,7 @@ class ModelShippingDdelivery extends Model
         if ($response['status'] === 'ok')
         {
             if (isset($response['data']['cabinet_id']))
-                $this->setOrderDDeliveryCabinetID($order_id, $response['data']['cabinet_id']);
+                $this->setOrderSafeRouteCabinetID($order_id, $response['data']['cabinet_id']);
 
             return true;
         }
@@ -242,13 +231,13 @@ class ModelShippingDdelivery extends Model
 
         $order = $this->db->query("SELECT * FROM " . DB_PREFIX . "order WHERE order_id='" . $order_id . "'")->row;
 
-        // Выполнять запрос к SDK DDelivery только если у заказа есть ID DDelivery
+        // Выполнять запрос к SDK SafeRoute только если у заказа есть ID SafeRoute
         // и заказ ещё не был передан в Личный кабинет
-        if ($order['ddelivery_id'] && !$order['in_ddelivery_cabinet'])
+        if ($order['saferoute_id'] && !$order['in_saferoute_cabinet'])
         {
-            // Отправка запроса к API SDK DDelivery
-            $response = $this->sendDDeliveryUpdateOrderRequest([
-                'id'             => $order['ddelivery_id'],
+            // Отправка запроса к API SDK SafeRoute
+            $response = $this->sendSafeRouteUpdateOrderRequest([
+                'id'             => $order['saferoute_id'],
                 'status'         => $order_status_id,
                 'payment_method' => $order['payment_code'],
             ]);
@@ -256,7 +245,7 @@ class ModelShippingDdelivery extends Model
             if ($response['status'] === 'ok')
             {
                 if (isset($response['data']['cabinet_id']))
-                    $this->setOrderDDeliveryCabinetID($order_id, $response['data']['cabinet_id']);
+                    $this->setOrderSafeRouteCabinetID($order_id, $response['data']['cabinet_id']);
 
                 return true;
             }
@@ -271,42 +260,42 @@ class ModelShippingDdelivery extends Model
      */
     public function getQuote($address)
     {
-        $this->load->language('shipping/ddelivery');
+        $this->load->language('shipping/saferoute');
 
         $query = $this->db->query(
-            "SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . $this->config->get('ddelivery_geo_zone_id') . "' AND country_id = '" . $address['country_id'] . "' AND (zone_id = '" . $address['zone_id'] . "' OR zone_id = '0')"
+            "SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . $this->config->get('saferoute_geo_zone_id') . "' AND country_id = '" . $address['country_id'] . "' AND (zone_id = '" . $address['zone_id'] . "' OR zone_id = '0')"
         );
 
-        if (!$this->config->get('ddelivery_geo_zone_id') || $query->num_rows)
+        if (!$this->config->get('saferoute_geo_zone_id') || $query->num_rows)
         {
             $cost = 0;
 
-            if (isset($_COOKIE['DDWidgetData']))
+            if (isset($_COOKIE['SRWidgetData']))
             {
-                $dd_widget_data = json_decode(urldecode($_COOKIE['DDWidgetData']));
+                $sr_widget_data = json_decode(urldecode($_COOKIE['SRWidgetData']));
 
                 // Курьерская и Почта России
-                if (isset($dd_widget_data->delivery->total_price))
-                    $cost = $dd_widget_data->delivery->total_price;
+                if (isset($sr_widget_data->delivery->total_price))
+                    $cost = $sr_widget_data->delivery->total_price;
                 // Самовывоз
-                elseif (isset($dd_widget_data->delivery->point->price_delivery))
-                    $cost = $dd_widget_data->delivery->point->price_delivery;
+                elseif (isset($sr_widget_data->delivery->point->price_delivery))
+                    $cost = $sr_widget_data->delivery->point->price_delivery;
             }
 
             return [
-                'code'  => 'ddelivery',
+                'code'  => 'saferoute',
                 'title' => '',
                 'quote' => [
-                    'ddelivery' => [
-                        'code'         => 'ddelivery.ddelivery',
+                    'saferoute' => [
+                        'code'         => 'saferoute.saferoute',
                         'title'        => $this->language->get('text_title'),
                         'cost'         => $cost,
                         'tax_class_id' => 0,
-                        'ddelivery'	   => 'true',
+                        'saferoute'	   => 'true',
                         'text'         => '',
                     ],
                 ],
-                'sort_order' => $this->config->get('ddelivery_sort_order'),
+                'sort_order' => $this->config->get('saferoute_sort_order'),
                 'error' => false,
             ];
         }

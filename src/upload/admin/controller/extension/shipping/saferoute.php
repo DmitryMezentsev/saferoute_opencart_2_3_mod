@@ -1,13 +1,13 @@
 <?php
 
 
-class ControllerExtensionShippingDdelivery extends Controller
+class ControllerExtensionShippingSaferoute extends Controller
 {
     private $error = array();
 
     public function index()
     {
-        $this->load->language('shipping/ddelivery');
+        $this->load->language('shipping/saferoute');
 
         $this->load->model('setting/setting');
         $this->load->model('localisation/geo_zone');
@@ -15,7 +15,7 @@ class ControllerExtensionShippingDdelivery extends Controller
 
         if (($this->request->server['REQUEST_METHOD'] === 'POST') && $this->validate())
         {
-            $this->model_setting_setting->editSetting('ddelivery', $this->request->post);
+            $this->model_setting_setting->editSetting('saferoute', $this->request->post);
 
             $this->session->data['success'] = $this->language->get('text_success');
 
@@ -55,42 +55,42 @@ class ControllerExtensionShippingDdelivery extends Controller
             ],
             [
                 'text' => $this->language->get('heading_title'),
-                'href' => $this->url->link('extension/shipping/ddelivery', 'token=' . $this->session->data['token'], true),
+                'href' => $this->url->link('extension/shipping/saferoute', 'token=' . $this->session->data['token'], true),
             ],
         ];
 
-        $data['action'] = $this->url->link('extension/shipping/ddelivery', 'token=' . $this->session->data['token'], true);
+        $data['action'] = $this->url->link('extension/shipping/saferoute', 'token=' . $this->session->data['token'], true);
         $data['cancel'] = $this->url->link('extension/extension', 'token=' . $this->session->data['token'] . '&type=shipping', true);
 
         $data['geo_zones'] = $this->model_localisation_geo_zone->getGeoZones();
 
-        $data['ddelivery_geo_zone_id'] = isset($this->request->post['ddelivery_geo_zone_id'])
-            ? $this->request->post['ddelivery_geo_zone_id']
-            : $this->config->get('ddelivery_geo_zone_id');
+        $data['saferoute_geo_zone_id'] = isset($this->request->post['saferoute_geo_zone_id'])
+            ? $this->request->post['saferoute_geo_zone_id']
+            : $this->config->get('saferoute_geo_zone_id');
 
-        $data['ddelivery_api_key'] = isset($this->request->post['ddelivery_api_key'])
-            ? $this->request->post['ddelivery_api_key']
-            : $this->config->get('ddelivery_api_key');
+        $data['saferoute_api_key'] = isset($this->request->post['saferoute_api_key'])
+            ? $this->request->post['saferoute_api_key']
+            : $this->config->get('saferoute_api_key');
 
-        $data['ddelivery_status'] = isset($this->request->post['ddelivery_status'])
-            ? $this->request->post['ddelivery_status']
-            : $this->config->get('ddelivery_status');
+        $data['saferoute_status'] = isset($this->request->post['saferoute_status'])
+            ? $this->request->post['saferoute_status']
+            : $this->config->get('saferoute_status');
 
-        $data['ddelivery_sort_order'] = isset($this->request->post['ddelivery_sort_order'])
-            ? $this->request->post['ddelivery_sort_order']
-            : $this->config->get('ddelivery_sort_order');
+        $data['saferoute_sort_order'] = isset($this->request->post['saferoute_sort_order'])
+            ? $this->request->post['saferoute_sort_order']
+            : $this->config->get('saferoute_sort_order');
 
         $data['header']      = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer']      = $this->load->controller('common/footer');
 
 
-        $this->response->setOutput($this->load->view('extension/shipping/ddelivery', $data));
+        $this->response->setOutput($this->load->view('extension/shipping/saferoute', $data));
     }
 
     protected function validate()
     {
-        if (!$this->user->hasPermission('modify', 'extension/shipping/ddelivery'))
+        if (!$this->user->hasPermission('modify', 'extension/shipping/saferoute'))
             $this->error['warning'] = $this->language->get('error_permission');
 
         return !$this->error;

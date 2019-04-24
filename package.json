@@ -1,13 +1,13 @@
 {
-  "name": "ddelivery_opencart_2_3_mod",
+  "name": "saferoute_opencart_2_3_mod",
   "version": "2.0.0",
-  "description": "DDelivery Opencart 2.3 Module",
+  "description": "SafeRoute Opencart 2.3 Module",
   "main": "",
   "scripts": {},
   "author": "Dmitry Mezentsev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/DmitryMezentsev/ddelivery_opencart_2_3_mod.git"
+    "url": "https://github.com/DmitryMezentsev/saferoute_opencart_2_3_mod.git"
   },
   "license": "ISC",
   "devDependencies": {
@@ -15,6 +15,7 @@
     "gulp-clean": "^0.4.0",
     "gulp-watch": "^5.0.0",
     "gulp-zip": "^4.1.0",
-    "run-sequence": "^2.2.1"
+    "run-sequence": "^2.2.1",
+    "natives": "^1.1.6"
   }
 }
