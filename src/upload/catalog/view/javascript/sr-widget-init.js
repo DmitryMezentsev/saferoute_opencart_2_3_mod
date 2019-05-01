@@ -28,7 +28,8 @@
 
 
     window.SafeRouteWidgetInit = function () {
-        var $safeRouteLabel = $('label[for="saferoute.saferoute"]');
+        var $safeRouteLabel = $('label[for="saferoute.saferoute"]'),
+            $shippingRadio = $('input[name=shipping_method]');
 
         // Если место, где должен отображаться виджет, на странице не существует или в текущий момент
         // не отображается, функцию выполнять не нужно
@@ -40,6 +41,9 @@
         if (!widget) {
             cookie.remove('SRWidgetData');
             cookie.remove('SROrderData');
+        // Если произошел повторный вызов функции, старый виджет нужно уничтожить
+        } else {
+            widget.destruct();
         }
 
         // Элементы поля валидации widget_validation
@@ -49,6 +53,10 @@
         // Скрываем поле валидации, оставляя на экране только вывод ошибки
         $validationLabel.remove();
         $validationInput.hide();
+
+        // Если выбрана не доставка SafeRoute, виджет запускать не нужно
+        if ($shippingRadio.filter(':checked').val() !== 'saferoute.saferoute')
+            return;
 
         // Если в поле валидации уже есть значение, его нужно удалить
         $validationInput.val('');
@@ -62,9 +70,6 @@
                 case 'en':    lang = 'en'; break;
                 case 'zh-CN': lang = 'zh'; break;
             }
-
-            // Если произошел повторный вызов функции, старый виджет нужно уничтожить
-            if (widget) widget.destruct();
 
             // DOM-узел для монтирования виджета
             $safeRouteLabel.after('<div id="' + WIDGET_DOM_ID + '"></div>');
@@ -82,7 +87,12 @@
                     mod: 'opencart_2_3',
 
                     products: cart.products,
-                    weight: cart.weight
+                    weight: cart.weight,
+
+                    // Получение ФИО, телефона и E-mail из соответствующих полей на странице, если вдруг они есть
+                    userFullName: $.trim($('input#customer_firstname').val()),
+                    userEmail: $.trim($('input#customer_email').val()),
+                    userPhone: $.trim($('input#customer_telephone').val()).replace(/[^\d]/g, '')
                 });
 
                 // Изменение значений в виджете
@@ -106,6 +116,9 @@
                         var $buttonBlock = $('.simplecheckout-button-block'),
                             $nextStepBtn = $buttonBlock.find('.button[data-onclick=nextStep]:visible'),
                             $confirmBtn  = $buttonBlock.find('#button-confirm:visible, #simplecheckout_button_confirm:visible');
+
+                        // Блокировка возможности изменения способа доставки (на всякий случай)
+                        $shippingRadio.not('[value="saferoute.saferoute"]').prop('disabled', true);
 
                         // Переход к следующему шагу
                         if ($nextStepBtn.length)
