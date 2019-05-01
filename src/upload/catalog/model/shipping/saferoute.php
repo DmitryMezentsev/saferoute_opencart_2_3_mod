@@ -46,6 +46,18 @@ class ModelShippingSaferoute extends Model
     }
 
     /**
+     * Возвращает код способа доставки по ID заказа
+     *
+     * @param $order_id int|string ID заказа
+     * @return string
+     */
+    private function getOrderShipping($order_id)
+    {
+        $q = $this->db->query("SELECT shipping_code FROM " . DB_PREFIX . "order WHERE order_id='$order_id'");
+        return $q->row['shipping_code'];
+    }
+
+    /**
      * Обновляет saferoute_id заказа и устанавливает флаг, что заказ был перенесен в ЛК SafeRoute
      *
      * @param $order_id int|string ID заказа в БД CMS
@@ -159,7 +171,7 @@ class ModelShippingSaferoute extends Model
         // Сохраняем в заказе тот SafeRoute ID, который был получен виджетом при создании заказа
         $this->updateOrder($order_id, 'saferoute_id', $sr_order_data->id);
 
-        if (isset($_COOKIE['SRWidgetData']))
+        if (isset($_COOKIE['SRWidgetData']) && $this->getOrderShipping($order_id) === 'saferoute.saferoute')
         {
             $sr_widget_data = json_decode(urldecode($_COOKIE['SRWidgetData']));
 

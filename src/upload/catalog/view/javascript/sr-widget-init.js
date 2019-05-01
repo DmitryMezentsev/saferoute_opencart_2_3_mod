@@ -92,7 +92,9 @@
                     // Получение ФИО, телефона и E-mail из соответствующих полей на странице, если вдруг они есть
                     userFullName: $.trim($('input#customer_firstname').val()),
                     userEmail: $.trim($('input#customer_email').val()),
-                    userPhone: $.trim($('input#customer_telephone').val()).replace(/[^\d]/g, '')
+                    userPhone: $.trim($('input#customer_telephone').val())
+                        .replace(/[^\d]/g, '')
+                        .substring(0, 11)
                 });
 
                 // Изменение значений в виджете
