@@ -5,7 +5,7 @@ function checkCol($db, $name)
     return $db->query("SELECT *
         FROM information_schema.COLUMNS
         WHERE TABLE_SCHEMA = '".DB_DATABASE."'
-        AND TABLE_NAME = '".DB_PREFIX."order'
+        AND TABLE_NAME = '`".DB_PREFIX."order`'
         AND COLUMN_NAME = '$name'")->num_rows;
 }
 

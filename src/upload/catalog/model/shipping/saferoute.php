@@ -42,7 +42,7 @@ class ModelShippingSaferoute extends Model
     private function updateOrder($order_id, $param, $value)
     {
         if (isset($value) && $value)
-            $this->db->query("UPDATE " . DB_PREFIX . "order SET $param='$value' WHERE order_id='$order_id'");
+            $this->db->query("UPDATE `" . DB_PREFIX . "order` SET $param='$value' WHERE order_id='$order_id'");
     }
 
     /**
@@ -53,7 +53,7 @@ class ModelShippingSaferoute extends Model
      */
     private function getOrderShipping($order_id)
     {
-        $q = $this->db->query("SELECT shipping_code FROM " . DB_PREFIX . "order WHERE order_id='$order_id'");
+        $q = $this->db->query("SELECT shipping_code FROM `" . DB_PREFIX . "order` WHERE order_id='$order_id'");
         return $q->row['shipping_code'];
     }
 
@@ -241,7 +241,7 @@ class ModelShippingSaferoute extends Model
     {
         $this->load->model('checkout/order');
 
-        $order = $this->db->query("SELECT * FROM " . DB_PREFIX . "order WHERE order_id='" . $order_id . "'")->row;
+        $order = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order` WHERE order_id='" . $order_id . "'")->row;
 
         // Выполнять запрос к SDK SafeRoute только если у заказа есть ID SafeRoute
         // и заказ ещё не был передан в Личный кабинет

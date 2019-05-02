@@ -183,10 +183,10 @@ class ControllerModuleSaferoute extends Controller
                 if ($id && $status_cms)
                 {
                     // Сохранение трекинг-номера заказа
-                    $this->db->query("UPDATE " . DB_PREFIX . "order SET tracking='$track_number' WHERE saferoute_id='$id'");
+                    $this->db->query("UPDATE `" . DB_PREFIX . "order` SET tracking='$track_number' WHERE saferoute_id='$id'");
 
                     // Получение ID заказа в CMS
-                    $order_id = $this->db->query("SELECT order_id FROM " . DB_PREFIX . "order WHERE saferoute_id='$id'")->row['order_id'];
+                    $order_id = $this->db->query("SELECT order_id FROM `" . DB_PREFIX . "order` WHERE saferoute_id='$id'")->row['order_id'];
 
                     // Добавление нового статуса в историю статусов заказа
                     $this->model_checkout_order->addOrderHistory($order_id, $status_cms);
