@@ -189,7 +189,7 @@ class ControllerModuleSaferoute extends Controller
                     $order_id = $this->db->query("SELECT order_id FROM `" . DB_PREFIX . "order` WHERE saferoute_id='$id'")->row['order_id'];
 
                     // Добавление нового статуса в историю статусов заказа
-                    $this->model_checkout_order->addOrderHistory($order_id, $status_cms);
+                    $this->model_checkout_order->addOrderHistory($order_id, $status_cms, '', true);
                 }
                 else
                 {
