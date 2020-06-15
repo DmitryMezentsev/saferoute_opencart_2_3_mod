@@ -38,7 +38,8 @@ class ControllerExtensionShippingSaferoute extends Controller
         $data['entry_geo_zone']   = $this->language->get('entry_geo_zone');
         $data['entry_status']     = $this->language->get('entry_status');
         $data['entry_sort_order'] = $this->language->get('entry_sort_order');
-        $data['entry_api_key']    = $this->language->get('entry_api_key');
+        $data['entry_token']      = $this->language->get('entry_token');
+        $data['entry_shop_id']    = $this->language->get('entry_shop_id');
 
         $data['button_save']      = $this->language->get('button_save');
         $data['button_cancel']    = $this->language->get('button_cancel');
@@ -68,9 +69,13 @@ class ControllerExtensionShippingSaferoute extends Controller
             ? $this->request->post['saferoute_geo_zone_id']
             : $this->config->get('saferoute_geo_zone_id');
 
-        $data['saferoute_api_key'] = isset($this->request->post['saferoute_api_key'])
-            ? $this->request->post['saferoute_api_key']
-            : $this->config->get('saferoute_api_key');
+        $data['saferoute_token'] = isset($this->request->post['saferoute_token'])
+            ? $this->request->post['saferoute_token']
+            : $this->config->get('saferoute_token');
+
+        $data['saferoute_shop_id'] = isset($this->request->post['saferoute_shop_id'])
+            ? $this->request->post['saferoute_shop_id']
+            : $this->config->get('saferoute_shop_id');
 
         $data['saferoute_status'] = isset($this->request->post['saferoute_status'])
             ? $this->request->post['saferoute_status']

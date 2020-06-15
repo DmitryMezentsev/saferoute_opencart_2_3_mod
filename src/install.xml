@@ -3,7 +3,7 @@
 	<name>Модуль корзинного виджета SafeRoute</name>
 	<id>SafeRouteCartWidgetModule</id>
 	<code>SafeRouteCartWidgetModule</code>
-	<version>2.0</version>
+	<version>3.0</version>
 	<author>Dmitry Mezentsev</author>
 	<link>https://saferoute.ru</link>
 	<file path="catalog/controller/common/header.php">
@@ -12,7 +12,7 @@
 					$data['scripts'] = $this->document->getScripts();
 				]]></search>
 			<add position="before"><![CDATA[
-				$this->document->addScript('https://widgets.saferoute.ru/cart/api.js');
+				$this->document->addScript('https://widgets.saferoute.ru/cart/api.js?new');
 				$this->document->addScript('catalog/view/javascript/sr-widget-init.js');
 			]]></add>
 		</operation>

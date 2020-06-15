@@ -41,9 +41,15 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="input-api-key"><?php echo $entry_api_key; ?></label>
+            <label class="col-sm-2 control-label" for="input-token"><?php echo $entry_token; ?></label>
             <div class="col-sm-10">
-              <input type="text" name="saferoute_api_key" value="<?php echo $saferoute_api_key; ?>" placeholder="<?php echo $entry_api_key; ?>" id="input-api-key" class="form-control" />
+              <input type="text" name="saferoute_token" value="<?php echo $saferoute_token; ?>" placeholder="<?php echo $entry_token; ?>" id="input-token" class="form-control" maxlength="64" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-shop-id"><?php echo $entry_shop_id; ?></label>
+            <div class="col-sm-10">
+              <input type="text" name="saferoute_shop_id" value="<?php echo $saferoute_shop_id; ?>" placeholder="<?php echo $entry_shop_id; ?>" id="input-shop-id" class="form-control" maxlength="12" required />
             </div>
           </div>
           <div class="form-group">

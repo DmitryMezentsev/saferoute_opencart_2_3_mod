@@ -16,10 +16,8 @@
 
     var messages = {
         ru: { cartIsEmpty: 'Корзина пуста' },
-        en: { cartIsEmpty: 'Cart is empty' },
-        zh: { cartIsEmpty: '' }
+        en: { cartIsEmpty: 'Cart is empty' }
     };
-
 
     var WIDGET_DOM_ID = 'sr-widget';
 
@@ -67,8 +65,7 @@
         $.get(baseHref + 'index.php?route=module/saferoute/get_settings', function (settings) {
             var lang = 'ru';
             switch (settings.lang) {
-                case 'en':    lang = 'en'; break;
-                case 'zh-CN': lang = 'zh'; break;
+                case 'en': lang = 'en'; break;
             }
 
             // DOM-узел для монтирования виджета
@@ -84,7 +81,7 @@
                 widget = new SafeRouteCartWidget(WIDGET_DOM_ID, {
                     lang: lang,
                     apiScript: baseHref + 'index.php?route=module/saferoute/widget_api',
-                    mod: 'opencart_2_3',
+                    mod: 'opencart_2.x',
 
                     products: cart.products,
                     weight: cart.weight,
@@ -92,9 +89,7 @@
                     // Получение ФИО, телефона и E-mail из соответствующих полей на странице, если вдруг они есть
                     userFullName: $.trim($('input#customer_firstname').val()),
                     userEmail: $.trim($('input#customer_email').val()),
-                    userPhone: $.trim($('input#customer_telephone').val())
-                        .replace(/[^\d]/g, '')
-                        .substring(0, 11)
+                    userPhone: $.trim($('input#customer_telephone').val()).replace(/[^\d]/g, '')
                 });
 
                 // Изменение значений в виджете
@@ -104,33 +99,29 @@
                 });
 
                 // Заказ передан на сервер SafeRoute
-                widget.on('afterSubmit', function (response) {
-                    if (response.status === 'ok') {
-                        // Чтобы пройти валидацию поля widget_validation
-                        $validationInput.val(1);
+                widget.on('done', function (response) {
+                    // Чтобы пройти валидацию поля widget_validation
+                    $validationInput.val(1);
 
-                        // Сохранение данных заказа в Cookies
-                        cookie.set('SROrderData', {
-                            id: response.id,
-                            confirmed: response.confirmed
-                        }, true);
+                    // Сохранение данных заказа в Cookies
+                    cookie.set('SROrderData', {
+                        id: response.id,
+                        confirmed: response.confirmed
+                    }, true);
 
-                        var $buttonBlock = $('.simplecheckout-button-block'),
-                            $nextStepBtn = $buttonBlock.find('.button[data-onclick=nextStep]:visible'),
-                            $confirmBtn  = $buttonBlock.find('#button-confirm:visible, #simplecheckout_button_confirm:visible');
+                    var $buttonBlock = $('.simplecheckout-button-block'),
+                        $nextStepBtn = $buttonBlock.find('.button[data-onclick=nextStep]:visible'),
+                        $confirmBtn  = $buttonBlock.find('#button-confirm:visible, #simplecheckout_button_confirm:visible');
 
-                        // Блокировка возможности изменения способа доставки (на всякий случай)
-                        $shippingRadio.not('[value="saferoute.saferoute"]').prop('disabled', true);
+                    // Блокировка возможности изменения способа доставки (на всякий случай)
+                    $shippingRadio.not('[value="saferoute.saferoute"]').prop('disabled', true);
 
-                        // Переход к следующему шагу
-                        if ($nextStepBtn.length)
-                            $nextStepBtn.trigger('click');
-                        // Либо подтверждение заказа
-                        else if ($confirmBtn.length)
-                            $confirmBtn.trigger('click');
-                    } else {
-                        console.error(response.message);
-                    }
+                    // Переход к следующему шагу
+                    if ($nextStepBtn.length)
+                        $nextStepBtn.trigger('click');
+                    // Либо подтверждение заказа
+                    else if ($confirmBtn.length)
+                        $confirmBtn.trigger('click');
                 });
 
                 // Вывод ошибок виджета в консоль

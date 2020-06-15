@@ -40,14 +40,14 @@ class ControllerModuleSaferoute extends Controller
     }
 
     /**
-     * Проверяет, совпадает ли переданный API-ключ c API-ключом, указанным в настройках модуля SafeRoute
+     * Проверяет, совпадает ли переданный токен c токеном, указанным в настройках модуля SafeRoute
      *
-     * @param $key string API-ключ для проверки
+     * @param $token string Токен для проверки
      * @return boolean
      */
-    private function checkApiKey($key)
+    private function checkToken($token)
     {
-        return ($key && $key === $this->config->get('saferoute_api_key'));
+        return ($token && $token === $this->config->get('saferoute_token'));
     }
 
     /**
@@ -112,7 +112,7 @@ class ControllerModuleSaferoute extends Controller
                 'name'       => $product['name'],
                 'vendorCode' => $attributes['sku'],
                 'barcode'    => $attributes['barcode'],
-                'nds'        => $attributes['vat'] ? (int) $attributes['vat'] : null,
+                'vat'        => $attributes['vat'] ? (int) $attributes['vat'] : null,
                 'price'      => $product['price'],
                 'count'      => (int) $product['quantity'],
             ];
@@ -126,23 +126,25 @@ class ControllerModuleSaferoute extends Controller
      */
     public function widget_api()
     {
-        $widgetApi = new SafeRouteWidgetApi();
+        $widgetApi = new SafeRouteWidgetApi($this->config->get('saferoute_token'), $this->config->get('saferoute_shop_id'));
 
-        $widgetApi->setApiKey($this->config->get('saferoute_api_key'));
+        $request = ($_SERVER['REQUEST_METHOD'] === 'POST')
+            ? json_decode(file_get_contents('php://input'), true)
+            : $_REQUEST;
 
         $widgetApi->setMethod($_SERVER['REQUEST_METHOD']);
-        $widgetApi->setData(isset($_REQUEST['data']) ? $_REQUEST['data'] : []);
+        $widgetApi->setData(isset($request['data']) ? $request['data'] : []);
 
-        $this->response->setOutput($widgetApi->submit($_REQUEST['url']));
+        $this->response->setOutput($widgetApi->submit($request['url']));
     }
 
     /**
-     * API для взаимодействия с SDK SafeRoute
+     * API для взаимодействия с бэком SafeRoute
      */
     public function api()
     {
-        // Проверка API-ключа, передаваемого в запросе
-        if ($this->checkApiKey($this->getParam('k')))
+        // Проверка токена, передаваемого в запросе
+        if ($this->checkToken($this->request->header('token')))
         {
             $r = $this->request->get['route'];
 
@@ -169,17 +171,17 @@ class ControllerModuleSaferoute extends Controller
                 $this->sendJSON($payment_methods);
             }
             // Уведомления об изменениях статуса заказа в SafeRoute
-            elseif (strpos($r, 'traffic-orders.json'))
+            elseif (strpos($r, 'order-status-update'))
             {
                 $this->load->model('checkout/order');
                 $this->load->language('api/order');
 
                 // Данные запроса
                 $id = $this->postParam('id');
-                $status_cms = $this->postParam('status_cms');
-                $track_number = $this->postParam('track_number');
+                $status_cms = $this->postParam('statusCMS');
+                $track_number = $this->postParam('trackNumber');
 
-                // id и status_cms обязательно должны быть переданы
+                // id и statusCMS обязательно должны быть переданы
                 if ($id && $status_cms)
                 {
                     // Сохранение трекинг-номера заказа

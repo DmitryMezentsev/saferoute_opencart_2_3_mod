@@ -1,3 +1,3 @@
 <?php
 
-$_['text_title'] = 'SafeRoute';
+$_['text_title'] = 'SafeRoute Shipping';

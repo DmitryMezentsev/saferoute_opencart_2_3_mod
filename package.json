@@ -1,7 +1,7 @@
 {
   "name": "saferoute_opencart_2_3_mod",
-  "version": "2.0.0",
-  "description": "SafeRoute Opencart 2.3 Module",
+  "version": "3.0.0",
+  "description": "SafeRoute OpenCart 2.3 Module",
   "main": "",
   "scripts": {},
   "author": "Dmitry Mezentsev",
@@ -11,11 +11,10 @@
   },
   "license": "ISC",
   "devDependencies": {
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "gulp-clean": "^0.4.0",
-    "gulp-watch": "^5.0.0",
-    "gulp-zip": "^4.1.0",
-    "run-sequence": "^2.2.1",
-    "natives": "^1.1.6"
+    "gulp-watch": "^5.0.1",
+    "gulp-zip": "^5.0.1",
+    "path": "^0.12.7"
   }
 }

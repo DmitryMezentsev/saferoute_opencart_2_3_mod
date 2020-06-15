@@ -3,28 +3,24 @@
 class ModelShippingSaferoute extends Model
 {
     /**
-     * Возвращает путь к API для обновления данных заказа в SafeRoute
-     *
-     * @return string
-     */
-    private function getSafeRouteUpdateOrderAPI()
-    {
-        return 'https://api.saferoute.ru/api/' . $this->config->get('saferoute_api_key') . '/sdk/update-order.json';
-    }
-
-    /**
-     * Отправляет запрос на обновление данных заказа в SafeRoute SDK
+     * Отправляет запрос на обновление данных заказа на сервер SafeRoute
      *
      * @param $values array Параметры запроса
      * @return array
      */
-    private function sendSafeRouteUpdateOrderRequest($values)
+    private function sendSafeRouteUpdateOrderRequest(array $values)
     {
-        $curl = curl_init($this->getSafeRouteUpdateOrderAPI());
+        $curl = curl_init('https://api.saferoute.ru/v2/widgets/update-order');
 
+        curl_setopt($curl, CURLOPT_HEADER, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($values));
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($values));
+        curl_setopt($curl, CURLOPT_HTTPHEADER, [
+            'Content-Type:application/json',
+            'Authorization:Bearer ' . $this->config->get('saferoute_token'),
+            'shop-id:' . $this->config->get('saferoute_shop_id'),
+        ]);
 
         $response = json_decode(curl_exec($curl), true);
         curl_close($curl);
@@ -70,36 +66,6 @@ class ModelShippingSaferoute extends Model
             $this->updateOrder($order_id, 'saferoute_id', $saferoute_id);
             $this->updateOrder($order_id, 'in_saferoute_cabinet', 1);
         }
-    }
-
-    /**
-     * Возвращает адрес для сохранения в заказе из данных виджета
-     *
-     * @param object Данные виджета
-     * @return string
-     */
-    private function getAddress($widget_data)
-    {
-        if (!isset($widget_data->delivery->type)) return '';
-
-        $address = '';
-
-        if (intval($widget_data->delivery->type) === 1 && isset($widget_data->delivery->point->address))
-        {
-            // Адрес точки самовывоза
-            $address = $widget_data->delivery->point->address;
-        }
-        elseif (isset($widget_data->contacts->address))
-        {
-            // Адрес клиента
-            $a = $widget_data->contacts->address;
-
-            if (isset($a->street)) $address .= $a->street . ', ';
-            if (isset($a->house))  $address .= $a->house . ', ';
-            if (isset($a->flat))   $address .= $a->flat;
-        }
-
-        return trim($address);
     }
 
     /**
@@ -176,13 +142,13 @@ class ModelShippingSaferoute extends Model
             $sr_widget_data = json_decode(urldecode($_COOKIE['SRWidgetData']));
 
             // Сохраняем в заказе адрес...
-            $this->updateOrder($order_id, 'shipping_address_1', $this->getAddress($sr_widget_data));
+            $this->updateOrder($order_id, 'shipping_address_1', $sr_widget_data->_meta->fullDeliveryAddress);
             // ...город
             if (isset($sr_widget_data->city->name))
                 $this->updateOrder($order_id, 'shipping_city', $sr_widget_data->city->name);
             // ...индекс
-            if (isset($sr_widget_data->contacts->address->index))
-                $this->updateOrder($order_id, 'shipping_postcode', $sr_widget_data->contacts->address->index);
+            if (isset($sr_widget_data->contacts->address->zipCode))
+                $this->updateOrder($order_id, 'shipping_postcode', $sr_widget_data->contacts->address->zipCode);
             // ...ФИО
             if (isset($sr_widget_data->contacts->fullName))
             {
@@ -211,19 +177,17 @@ class ModelShippingSaferoute extends Model
         // Получение заказа в CMS
         $order = $this->model_checkout_order->getOrder($order_id);
 
-        // Отправка запроса к API SDK SafeRoute
+        // Отправка запроса к API SafeRoute
         $response = $this->sendSafeRouteUpdateOrderRequest([
-            'id'             => $sr_order_data->id,
-            'status'         => $order['order_status_id'],
-            'cms_id'         => $order_id,
-            'payment_method' => $order['payment_code'],
+            'id'            => $sr_order_data->id,
+            'status'        => $order['order_status_id'],
+            'cmsId'         => $order_id,
+            'paymentMethod' => $order['payment_code'],
         ]);
 
-        if ($response['status'] === 'ok')
+        if (!empty($response['cabinetId']))
         {
-            if (isset($response['data']['cabinet_id']))
-                $this->setOrderSafeRouteCabinetID($order_id, $response['data']['cabinet_id']);
-
+            $this->setOrderSafeRouteCabinetID($order_id, $response['cabinetId']);
             return true;
         }
 
@@ -243,22 +207,20 @@ class ModelShippingSaferoute extends Model
 
         $order = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order` WHERE order_id='" . $order_id . "'")->row;
 
-        // Выполнять запрос к SDK SafeRoute только если у заказа есть ID SafeRoute
+        // Выполнять запрос к API SafeRoute только если у заказа есть ID SafeRoute
         // и заказ ещё не был передан в Личный кабинет
         if ($order['saferoute_id'] && !$order['in_saferoute_cabinet'])
         {
-            // Отправка запроса к API SDK SafeRoute
+            // Отправка запроса
             $response = $this->sendSafeRouteUpdateOrderRequest([
-                'id'             => $order['saferoute_id'],
-                'status'         => $order_status_id,
-                'payment_method' => $order['payment_code'],
+                'id'            => $order['saferoute_id'],
+                'status'        => $order_status_id,
+                'paymentMethod' => $order['payment_code'],
             ]);
 
-            if ($response['status'] === 'ok')
+            if (!empty($response['cabinetId']))
             {
-                if (isset($response['data']['cabinet_id']))
-                    $this->setOrderSafeRouteCabinetID($order_id, $response['data']['cabinet_id']);
-
+                $this->setOrderSafeRouteCabinetID($order_id, $response['cabinetId']);
                 return true;
             }
         }
@@ -286,12 +248,10 @@ class ModelShippingSaferoute extends Model
             {
                 $sr_widget_data = json_decode(urldecode($_COOKIE['SRWidgetData']));
 
-                // Курьерская и Почта России
-                if (isset($sr_widget_data->delivery->total_price))
-                    $cost = $sr_widget_data->delivery->total_price;
-                // Самовывоз
-                elseif (isset($sr_widget_data->delivery->point->price_delivery))
-                    $cost = $sr_widget_data->delivery->point->price_delivery;
+                if ($sr_widget_data)
+                {
+                    $cost = $sr_widget_data->delivery->total_price + ($sr_widget_data->payTypeCommission ? $sr_widget_data->payTypeCommission : 0);
+                }
             }
 
             return [
