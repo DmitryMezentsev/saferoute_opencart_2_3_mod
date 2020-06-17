@@ -72,18 +72,55 @@ class ControllerModuleSaferoute extends Controller
         }
     }
 
+    /**
+     * Возвращает артикул товара
+     *
+     * @param $id int ID товара
+     * @return string
+     */
+    private function getProductSku($id)
+    {
+        $this->load->model('catalog/product');
+        $product = $this->model_catalog_product->getProduct($id);
+
+        return isset($product['sku']) ? $product['sku'] : '';
+    }
+
+    /**
+     * Возвращает габариты товара строго в см
+     *
+     * @param $product array Данные товара
+     * @return array
+     */
+    private function getProductDimensions(array $product)
+    {
+        $dimensions = [
+            'width' => (float) $product['width'],
+            'height' => (float) $product['height'],
+            'length' => (float) $product['length'],
+        ];
+
+        // Если габариты в мм
+        if ($product['length_class_id'] === '2')
+        {
+            $dimensions['width'] /= 10;
+            $dimensions['height'] /= 10;
+            $dimensions['length'] /= 10;
+        }
+
+        return $dimensions;
+    }
+
 
     /**
      * Возвращает настройки сайта / модуля, необходимые для работы виджета
      */
     public function get_settings()
     {
-        $data = [];
-
-        // Язык сайта
-        $data['lang'] = $this->language->get('code');
-
-        $this->sendJSON($data);
+        $this->sendJSON([
+            'lang' => $this->language->get('code'),
+            'currency' => strtolower($this->session->data['currency']),
+        ]);
     }
 
     /**
@@ -101,20 +138,23 @@ class ControllerModuleSaferoute extends Controller
         foreach ($this->cart->getProducts() as $product)
         {
             $attributes = [
-                'sku'     => '', // Артикул
                 'barcode' => '', // Штрих-код
                 'vat'     => '', // НДС
             ];
 
             $this->getProductAttributes($product['product_id'], $attributes);
+            $dimensions = $this->getProductDimensions($product);
 
             $data['products'][] = [
                 'name'       => $product['name'],
-                'vendorCode' => $attributes['sku'],
+                'vendorCode' => $this->getProductSku($product['product_id']),
                 'barcode'    => $attributes['barcode'],
                 'vat'        => $attributes['vat'] ? (int) $attributes['vat'] : null,
                 'price'      => $product['price'],
                 'count'      => (int) $product['quantity'],
+                'width'      => $dimensions['width'],
+                'height'     => $dimensions['height'],
+                'length'     => $dimensions['length'],
             ];
         }
 

@@ -68,6 +68,13 @@
                 case 'en': lang = 'en'; break;
             }
 
+            var currency = 'rub';
+            switch (settings.currency) {
+                case 'usd': currency = 'usd'; break;
+                case 'eur': currency = 'euro'; break;
+                case 'euro': currency = 'euro'; break;
+            }
+
             // DOM-узел для монтирования виджета
             $safeRouteLabel.after('<div id="' + WIDGET_DOM_ID + '"></div>');
 
@@ -80,6 +87,7 @@
                 // Инициализация виджета SafeRoute
                 widget = new SafeRouteCartWidget(WIDGET_DOM_ID, {
                     lang: lang,
+                    currency: currency,
                     apiScript: baseHref + 'index.php?route=module/saferoute/widget_api',
                     mod: 'opencart_2.x',
 
