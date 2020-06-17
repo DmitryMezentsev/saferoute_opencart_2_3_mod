@@ -250,7 +250,10 @@ class ModelShippingSaferoute extends Model
 
                 if ($sr_widget_data)
                 {
-                    $cost = $sr_widget_data->delivery->total_price + ($sr_widget_data->payTypeCommission ? $sr_widget_data->payTypeCommission : 0);
+                    $pay_type_commission = isset($sr_widget_data->payTypeCommission) ? $sr_widget_data->payTypeCommission : 0;
+                    $delivery_total_price = isset($sr_widget_data->delivery->totalPrice) ? $sr_widget_data->delivery->totalPrice : 0;
+
+                    $cost = $delivery_total_price + $pay_type_commission;
                 }
             }
 
