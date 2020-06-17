@@ -144,7 +144,7 @@ class ControllerModuleSaferoute extends Controller
     public function api()
     {
         // Проверка токена, передаваемого в запросе
-        if ($this->checkToken($this->request->header('token')))
+        if ($this->checkToken($this->request->server['HTTP_TOKEN']))
         {
             $r = $this->request->get['route'];
 
