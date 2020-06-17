@@ -169,6 +169,9 @@ class ModelShippingSaferoute extends Model
                 }
                 */
             }
+            // ...E-mail
+            if (isset($sr_widget_data->contacts->email))
+                $this->updateOrder($order_id, 'email', $sr_widget_data->contacts->email);
             // ...и телефон клиента из виджета
             if (isset($sr_widget_data->contacts->phone))
                 $this->updateOrder($order_id, 'telephone', $sr_widget_data->contacts->phone);
