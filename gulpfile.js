@@ -3,10 +3,10 @@
 const { join } = require('path');
 
 const $ = {
-    gulp:  require('gulp'),
-    zip:   require('gulp-zip'),
-    clean: require('gulp-clean'),
-    watch: require('gulp-watch'),
+  gulp:  require('gulp'),
+  zip:   require('gulp-zip'),
+  clean: require('gulp-clean'),
+  watch: require('gulp-watch'),
 };
 
 
@@ -20,20 +20,20 @@ const moduleFileName  = 'saferoute.ocmod.zip';
 
 // Удаление старых файлов сборки
 $.gulp.task('_clean', () =>
-    $.gulp.src(join(buildDir, '*.*'), { read: false })
-        .pipe($.clean())
+  $.gulp.src(join(buildDir, '*.*'), { read: false })
+    .pipe($.clean())
 );
 
 // Сборка модуля в установочный архив
 $.gulp.task('_buildModule', () =>
-    $.gulp.src(moduleFiles)
-        .pipe($.zip(moduleFileName))
-        .pipe($.gulp.dest(buildDir))
+  $.gulp.src(moduleFiles, { base: srcDir })
+    .pipe($.zip(moduleFileName))
+    .pipe($.gulp.dest(buildDir))
 );
 
 // Мониторинг изменений и пересборка
 $.gulp.task('_watch', () =>
-    $.watch([moduleFiles], $.gulp.series('_clean', '_buildModule'))
+  $.watch([moduleFiles], $.gulp.series('_clean', '_buildModule'))
 );
 
 
