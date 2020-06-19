@@ -10,7 +10,7 @@ const $ = {
 };
 
 
-const buildDir  = './build';
+const buildDir  = './build/2.3';
 const srcDir = './src';
 
 const moduleFiles = join(srcDir, '**/*.*');
