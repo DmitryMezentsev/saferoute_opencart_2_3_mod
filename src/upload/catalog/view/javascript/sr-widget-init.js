@@ -89,8 +89,9 @@
                     lang: lang,
                     currency: currency,
                     apiScript: baseHref + 'index.php?route=module/saferoute/widget_api',
-                    mod: 'opencart_2.x',
+                    mod: 'opencart_2.3',
 
+                    discount: cart.discount,
                     products: cart.products,
                     weight: cart.weight,
 

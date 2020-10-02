@@ -158,6 +158,23 @@ class ControllerModuleSaferoute extends Controller
             ];
         }
 
+        // Определение размера скидок по купонам
+        $data['discount'] = 0;
+        if (isset($this->session->data['coupon']))
+        {
+            $total_data = [
+                'totals' => &$totals,
+                'total'  => &$total,
+            ];
+
+            $total_data['total'] = $this->cart->getTotal();
+            $this->load->model('extension/total/coupon');
+            $this->model_extension_total_coupon->getTotal($total_data);
+
+            foreach ($totals as $item)
+                $data['discount'] += abs($item['value']);
+        }
+
         $this->sendJSON($data);
     }
 
