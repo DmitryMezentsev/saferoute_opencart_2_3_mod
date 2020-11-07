@@ -41,4 +41,19 @@
 			]]></add>
 		</operation>
 	</file>
+	<file path="admin/view/template/sale/order_info.tpl">
+		<operation>
+			<search><![CDATA[
+			<td class="text-left"><?php echo $shipping_address; ?></td>
+			]]></search>
+			<add position="replace" trim="true"><![CDATA[
+				<td class="text-left">
+	                <?php if ($saferouteDeliveryType && $saferouteDeliveryCompany) { ?>
+	                	<b><?php echo $saferouteDeliveryType ?> : <?php echo $saferouteDeliveryCompany ?></b><br>
+	                <?php } ?>
+	                <?php echo $shipping_address; ?>
+            	</td>
+			]]></add>
+		</operation>
+	</file>
 </modification>

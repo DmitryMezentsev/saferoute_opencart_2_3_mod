@@ -175,6 +175,14 @@ class ModelShippingSaferoute extends Model
             // ...и телефон клиента из виджета
             if (isset($sr_widget_data->contacts->phone))
                 $this->updateOrder($order_id, 'telephone', $sr_widget_data->contacts->phone);
+            // delivery type
+            if (isset($sr_widget_data->delivery->type)) {
+                $this->updateOrder($order_id, 'saferoute_delivery_type', $sr_widget_data->delivery->type);
+            }
+            // delivery company name
+            if (isset($sr_widget_data->delivery->deliveryCompanyName)) {
+                $this->updateOrder($order_id, 'saferoute_delivery_company', $sr_widget_data->delivery->deliveryCompanyName);
+            }
         }
 
         // Получение заказа в CMS
