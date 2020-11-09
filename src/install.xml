@@ -56,4 +56,16 @@
 			]]></add>
 		</operation>
 	</file>
+	<file path="admin/controller/sale/order.php">
+		<operation>
+			<search><![CDATA[
+			$this->response->setOutput($this->load->view('sale/order_info', $data));
+			]]></search>
+			<add position="replace" trim="true"><![CDATA[
+				$this->load->model('extension/shipping/saferoute');
+            	$data = $this->model_extension_shipping_saferoute->enrichData($data, $order_id);
+				$this->response->setOutput($this->load->view('sale/order_info', $data));
+			]]></add>
+		</operation>
+	</file>
 </modification>
