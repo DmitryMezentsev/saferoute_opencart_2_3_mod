@@ -2,16 +2,18 @@
 
 class ModelExtensionShippingSaferoute extends Model
 {
-    const PVZ = 1;
+    const PICKUP  = 1;
     const COURIER = 2;
-    const PRF = 3;
+    const POST    = 3;
 
-
-    public function enrichData($data, $orderId) {
+    /**
+     * @param $data array
+     * @param $orderId int|string
+     */
+    public function enrichData(array $data, $orderId) {
         $order = $this->getData($orderId);
-        if ($order === false) {
-            return $data;
-        }
+        if (!$order) return $data;
+        
         $data['saferouteDeliveryType'] = (!empty($order->row['saferoute_delivery_type']))
             ? $this->mapDeliveryType( (int) $order->row['saferoute_delivery_type'])
             : '';
@@ -23,23 +25,27 @@ class ModelExtensionShippingSaferoute extends Model
         return $data;
     }
 
+    /**
+     * @param $code int
+     */
     public function mapDeliveryType($code) {
-        $deliveryTypeList = array(
-            self::PVZ => 'Самовывоз',
+        $deliveryTypeList = [
+            self::PICKUP  => 'Самовывоз',
             self::COURIER => 'Курьерская доставка',
-            self::PRF => 'Почта РФ',
-        );
+            self::POST    => 'Почта РФ',
+        ];
 
-        if (array_key_exists($code, $deliveryTypeList)) {
-            return $deliveryTypeList[$code];
-        } else {
-            return false;
-        }
+        return (array_key_exists($code, $deliveryTypeList))
+            ? $deliveryTypeList[$code]
+            : false;
     }
+    
+    /**
+     * @param $orderId int|string
+     */
     public function getData($orderId) {
-        $query = $this->db->query("
-SELECT saferoute_delivery_type, saferoute_delivery_company 
-FROM `" . DB_PREFIX . "order` WHERE order_id = '" . (int) $orderId . "'"
+        $query = $this->db->query(
+            "SELECT saferoute_delivery_type, saferoute_delivery_company FROM `" . DB_PREFIX . "order` WHERE order_id = '" . $orderId . "'"
         );
 
         return $query->num_rows ? $query : false;
