@@ -9,6 +9,7 @@ class ModelExtensionShippingSaferoute extends Model
     /**
      * @param $data array
      * @param $orderId int|string
+     * @return array
      */
     public function enrichData(array $data, $orderId) {
         $order = $this->getData($orderId);
@@ -27,6 +28,7 @@ class ModelExtensionShippingSaferoute extends Model
 
     /**
      * @param $code int
+     * @return string
      */
     public function mapDeliveryType($code) {
         $deliveryTypeList = [
@@ -37,11 +39,12 @@ class ModelExtensionShippingSaferoute extends Model
 
         return (array_key_exists($code, $deliveryTypeList))
             ? $deliveryTypeList[$code]
-            : false;
+            : '';
     }
     
     /**
      * @param $orderId int|string
+     * @return mixed
      */
     public function getData($orderId) {
         $query = $this->db->query(
