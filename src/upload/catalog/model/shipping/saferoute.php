@@ -278,7 +278,7 @@ class ModelShippingSaferoute extends Model
                         'cost'         => $cost,
                         'tax_class_id' => 0,
                         'saferoute'	   => 'true',
-                        'text'         => $cost.'p.',
+                        'text'         => "$cost ₽",
                     ],
                 ],
                 'sort_order' => $this->config->get('saferoute_sort_order'),
