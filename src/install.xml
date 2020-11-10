@@ -48,11 +48,11 @@
 			]]></search>
 			<add position="replace" trim="true"><![CDATA[
 				<td class="text-left">
-	                <?php if ($saferouteDeliveryType && $saferouteDeliveryCompany) { ?>
-	                	<b><?php echo $saferouteDeliveryType ?> : <?php echo $saferouteDeliveryCompany ?></b><br>
-	                <?php } ?>
-	                <?php echo $shipping_address; ?>
-            	</td>
+					<?php if ($saferouteDeliveryType && $saferouteDeliveryCompany) { ?>
+						<b><?php echo $saferouteDeliveryType ?> : <?php echo $saferouteDeliveryCompany ?></b><br>
+					<?php } ?>
+					<?php echo $shipping_address; ?>
+				</td>
 			]]></add>
 		</operation>
 	</file>
@@ -63,7 +63,7 @@
 			]]></search>
 			<add position="replace" trim="true"><![CDATA[
 				$this->load->model('extension/shipping/saferoute');
-            	$data = $this->model_extension_shipping_saferoute->enrichData($data, $order_id);
+				$data = $this->model_extension_shipping_saferoute->enrichData($data, $order_id);
 				$this->response->setOutput($this->load->view('sale/order_info', $data));
 			]]></add>
 		</operation>

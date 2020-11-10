@@ -16,7 +16,7 @@ class ModelExtensionShippingSaferoute extends Model
         if (!$order) return $data;
         
         $data['saferouteDeliveryType'] = (!empty($order->row['saferoute_delivery_type']))
-            ? $this->mapDeliveryType( (int) $order->row['saferoute_delivery_type'])
+            ? $this->mapDeliveryType((int) $order->row['saferoute_delivery_type'])
             : '';
 
         $data['saferouteDeliveryCompany'] = (!empty($order->row['saferoute_delivery_company']))
