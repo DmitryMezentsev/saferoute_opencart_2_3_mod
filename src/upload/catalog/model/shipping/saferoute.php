@@ -185,6 +185,9 @@ class ModelShippingSaferoute extends Model
             }
         }
 
+        setcookie('SRWidgetData', null, -1, '/');
+        setcookie('SROrderData', null, -1, '/');
+
         // Получение заказа в CMS
         $order = $this->model_checkout_order->getOrder($order_id);
 
