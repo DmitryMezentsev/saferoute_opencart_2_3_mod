@@ -103,6 +103,7 @@
 
                 // Изменение значений в виджете
                 widget.on('change', function (values) {
+                    values._meta = null;
                     // Сохранение данных виджета в Cookies
                     cookie.set('SRWidgetData', values, true);
                 });
