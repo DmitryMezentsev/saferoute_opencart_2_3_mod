@@ -2,7 +2,7 @@
 
 /**
  * API-скрипт виджетов SafeRoute
- * v2.0
+ * v2.1
  */
 class SafeRouteWidgetApi
 {
@@ -123,9 +123,10 @@ class SafeRouteWidgetApi
             return $response;
         // Запрос к API
         } else {
-            $headers[] = 'Content-Type:application/json';
-            $headers[] = "Authorization:Bearer $this->token";
-            $headers[] = "shop-id:$this->shopId";
+            $headers[] = 'Content-Type: application/json';
+            $headers[] = "Authorization: Bearer $this->token";
+            $headers[] = "Shop-Id: $this->shopId";
+            $headers[] = "From-Widget: 1";
             $headers = array_unique($headers);
 
             if (isset($this->data['ip']) && !$this->data['ip']) {
@@ -152,13 +153,12 @@ class SafeRouteWidgetApi
 
             curl_close($curl);
 
-            if ($status === 200)
-                return json_encode(['status' => $status, 'data' => $response]);
-
-            return json_encode([
-                'status' => $status,
-                'code' => isset($response->code) ? $response->code : null,
-            ]);
+            return ($status === 200)
+                ? json_encode(['status' => $status, 'data' => $response])
+                : json_encode([
+                    'status' => $status,
+                    'code' => isset($response->code) ? $response->code : null,
+                ]);
         }
     }
 }
