@@ -2,7 +2,7 @@
 
 /**
  * API-скрипт виджетов SafeRoute
- * v2.1
+ * v2.2
  */
 class SafeRouteWidgetApi
 {
@@ -112,6 +112,8 @@ class SafeRouteWidgetApi
      */
     public function submit($url, $headers = [])
     {
+        if (!preg_match('/\w+\.saferoute\.ru$/', parse_url($url,  PHP_URL_HOST))) return '';
+
         // Загрузка кода виджета
         if ($this->isHtmlRequest($url)) {
             $curl = curl_init($url);
